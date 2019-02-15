@@ -1,6 +1,10 @@
 ![](https://img.shields.io/badge/Python-3.5-green.svg)
 [![Coverage Status](https://coveralls.io/repos/github/Microndgt/trie/badge.svg?branch=master)](https://coveralls.io/github/Microndgt/trie?branch=master)
 ![](https://travis-ci.org/Microndgt/trie.svg?branch=master)
+代码
+====
+给定动漫词汇的list和一堆对话数据，如果某条对话数据中包含list中的词汇，那么就把这条对话数据存储下来
+
 
 Trie
 ====

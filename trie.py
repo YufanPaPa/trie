@@ -1,3 +1,4 @@
+#coding=utf-8
 from collections import defaultdict
 END_OF = '#'
 
@@ -26,8 +27,8 @@ class Trie(object):
             if ele not in node.children:
                 node.children[ele] = Node(node.depth+1, node, ele)
             node = node.children[ele]
-        else:
-            node.children[END_OF] = Node(node.depth+1, node, END_OF)
+        #else:
+        node.children[END_OF] = Node(node.depth+1, node, END_OF)
         return self.root
 
     def dfs(self):
@@ -66,7 +67,7 @@ class Trie(object):
     def _find_node(self, node, target):
         if not node:
             return
-        if target == END_OF:
+        if target == END_OF and END_OF in node.children:
             return node
         node = node.children.get(target[0])
         if not node:
@@ -182,22 +183,61 @@ class Trie(object):
     def __contains__(self, item):
         return self.has_key_with_prefix(item)
 
-if __name__ == "__main__":
+def process_item_data(data_path):
+    word_list=[]
+    with open(data_path) as f_read:
+        line = f_read.readline()
+        while line:
+            line = line.strip()
+            word_list.append(line)
+            line = f_read.readline()
+    return word_list        
+
+def has_key(data,trie):
+    for i in range(len(data)):
+        substr=data[i:]
+        for j in range(len(substr)):
+            if len(data[i:j+i+1]) >=2 and data[i:j+i+1] in trie:
+                return True
+    return False
+
+def process_chat_data(data_path,trie):
+    chat_data=[]
+    count=0
+    with open(data_path) as f_read:
+        line=f_read.readline()
+        while line:
+            infos=line.split('	')
+            if(len(infos)==2):
+                query=infos[0].decode("utf-8")
+                response=infos[1].decode("utf-8")
+                if len(query)<30 and len(response)<30 and (has_key(query,trie) or has_key(response,trie)):
+                    chat_data.append(line)
+            line=f_read.readline()
+            count+=1
+            print(count)
+    return chat_data
+                	
+        
+
+def establish_trie_tree(word_list):
     trie = Trie()
-    trie.add("test")
-    trie.add("text")
-    print(trie.dfs())
-    print(trie.bfs())
-    print(trie.bfs())
-    print(trie.find("test"))
-    print(trie)
-    print(trie.prefix_search(''))
-    print(trie.dfs())
-    print(trie.prefix_search("tes"))
-    print(trie.traverse())
-    print(trie.has_key_with_prefix("t"))
-    print(trie.fuzzy_search('t'))
-    print("texdt" in trie)
-    print(trie.alphabet_count())
-    print(trie.most_used_alphabet)
-    print(trie.least_used_alphabet)
+    for word in word_list:
+        trie.add(word.decode("utf-8"))
+    return trie
+
+def save_chat_data(data_path,chat_data):
+    with open(data_path,"w") as f_write:
+        for data in chat_data:
+            f_write.write(data.strip()+"\n")
+    
+            
+if __name__ == "__main__":
+    item_data_path = "./clean_chinese_data"
+    word_list = process_item_data(item_data_path)
+    trie = establish_trie_tree(word_list)
+    chat_data_path = "/home/yufan/chinese_corpus/clean_chat_data/douban_all_data"
+    chat_data = process_chat_data(chat_data_path,trie)
+    save_chat_data_path = "./save_chat_data"
+    save_chat_data(save_chat_data_path,chat_data)
+    
